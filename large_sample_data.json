@@ -1,0 +1,332 @@
+[
+  {
+    "model": "store.category",
+    "pk": 1,
+    "fields": {
+      "name": "Fruits & Veg"
+    }
+  },
+  {
+    "model": "store.category",
+    "pk": 2,
+    "fields": {
+      "name": "Snacks"
+    }
+  },
+  {
+    "model": "store.category",
+    "pk": 3,
+    "fields": {
+      "name": "Supplements"
+    }
+  },
+  {
+    "model": "store.category",
+    "pk": 4,
+    "fields": {
+      "name": "Drinks"
+    }
+  },
+  {
+    "model": "store.category",
+    "pk": 5,
+    "fields": {
+      "name": "Breakfast"
+    }
+  },
+  {
+    "model": "store.category",
+    "pk": 6,
+    "fields": {
+      "name": "Pantry"
+    }
+  },
+  {
+    "model": "store.product",
+    "pk": 1,
+    "fields": {
+      "name": "Organic Apples",
+      "description": "Crisp organic apples rich in fiber.",
+      "price": "3.50",
+      "stock": 80,
+      "category": 1,
+      "image": "products/product_images/organic_apples.png"
+    }
+  },
+  {
+    "model": "store.product",
+    "pk": 2,
+    "fields": {
+      "name": "Banana Bunch",
+      "description": "Sweet ripe bananas perfect for smoothies.",
+      "price": "2.20",
+      "stock": 120,
+      "category": 1,
+      "image": "products/product_images/banana_bunch.png"
+    }
+  },
+  {
+    "model": "store.product",
+    "pk": 3,
+    "fields": {
+      "name": "Baby Spinach",
+      "description": "Washed leaves, ready to eat.",
+      "price": "1.99",
+      "stock": 60,
+      "category": 1,
+      "image": "products/product_images/baby_spinach.png"
+    }
+  },
+  {
+    "model": "store.product",
+    "pk": 4,
+    "fields": {
+      "name": "Blueberries",
+      "description": "Antioxidant-packed fresh berries.",
+      "price": "3.99",
+      "stock": 50,
+      "category": 1,
+      "image": "products/product_images/blueberries.png"
+    }
+  },
+  {
+    "model": "store.product",
+    "pk": 5,
+    "fields": {
+      "name": "Mixed Nuts",
+      "description": "Almonds, walnuts & cashews.",
+      "price": "5.99",
+      "stock": 90,
+      "category": 2,
+      "image": "products/product_images/mixed_nuts.png"
+    }
+  },
+  {
+    "model": "store.product",
+    "pk": 6,
+    "fields": {
+      "name": "Trail Mix",
+      "description": "Nuts, seeds & raisins (no added sugar).",
+      "price": "4.49",
+      "stock": 70,
+      "category": 2,
+      "image": "products/product_images/trail_mix.png"
+    }
+  },
+  {
+    "model": "store.product",
+    "pk": 7,
+    "fields": {
+      "name": "Protein Bars (Box of 6)",
+      "description": "Pea protein bars, choc chip.",
+      "price": "9.99",
+      "stock": 40,
+      "category": 2,
+      "image": "products/product_images/protein_bars_(box_of_6).png"
+    }
+  },
+  {
+    "model": "store.product",
+    "pk": 8,
+    "fields": {
+      "name": "Kale Chips",
+      "description": "Crispy oven-baked kale chips.",
+      "price": "3.29",
+      "stock": 35,
+      "category": 2,
+      "image": "products/product_images/kale_chips.png"
+    }
+  },
+  {
+    "model": "store.product",
+    "pk": 9,
+    "fields": {
+      "name": "Whey Protein",
+      "description": "Grass-fed whey, vanilla 1kg.",
+      "price": "24.99",
+      "stock": 30,
+      "category": 3,
+      "image": "products/product_images/whey_protein.png"
+    }
+  },
+  {
+    "model": "store.product",
+    "pk": 10,
+    "fields": {
+      "name": "Plant Protein",
+      "description": "Vegan blend of pea & rice.",
+      "price": "21.99",
+      "stock": 28,
+      "category": 3,
+      "image": "products/product_images/plant_protein.png"
+    }
+  },
+  {
+    "model": "store.product",
+    "pk": 11,
+    "fields": {
+      "name": "Omega-3 Capsules",
+      "description": "Algae-based DHA/EPA.",
+      "price": "14.99",
+      "stock": 45,
+      "category": 3,
+      "image": "products/product_images/omega-3_capsules.png"
+    }
+  },
+  {
+    "model": "store.product",
+    "pk": 12,
+    "fields": {
+      "name": "Vitamin D3",
+      "description": "1000 IU daily supplement.",
+      "price": "7.99",
+      "stock": 100,
+      "category": 3,
+      "image": "products/product_images/vitamin_d3.png"
+    }
+  },
+  {
+    "model": "store.product",
+    "pk": 13,
+    "fields": {
+      "name": "Kombucha Ginger",
+      "description": "Lightly sparkling fermented tea.",
+      "price": "2.49",
+      "stock": 80,
+      "category": 4,
+      "image": "products/product_images/kombucha_ginger.png"
+    }
+  },
+  {
+    "model": "store.product",
+    "pk": 14,
+    "fields": {
+      "name": "Cold Brew Coffee",
+      "description": "Slow brewed, smooth & bold.",
+      "price": "2.79",
+      "stock": 65,
+      "category": 4,
+      "image": "products/product_images/cold_brew_coffee.png"
+    }
+  },
+  {
+    "model": "store.product",
+    "pk": 15,
+    "fields": {
+      "name": "Coconut Water",
+      "description": "100% coconut water, no sugar.",
+      "price": "1.89",
+      "stock": 90,
+      "category": 4,
+      "image": "products/product_images/coconut_water.png"
+    }
+  },
+  {
+    "model": "store.product",
+    "pk": 16,
+    "fields": {
+      "name": "Green Smoothie",
+      "description": "Spinach, apple, kiwi blend.",
+      "price": "3.29",
+      "stock": 50,
+      "category": 4,
+      "image": "products/product_images/green_smoothie.png"
+    }
+  },
+  {
+    "model": "store.product",
+    "pk": 17,
+    "fields": {
+      "name": "Granola",
+      "description": "Honey & almond crunchy granola.",
+      "price": "4.99",
+      "stock": 60,
+      "category": 5,
+      "image": "products/product_images/granola.png"
+    }
+  },
+  {
+    "model": "store.product",
+    "pk": 18,
+    "fields": {
+      "name": "Overnight Oats",
+      "description": "Cinnamon & chia cup.",
+      "price": "2.59",
+      "stock": 75,
+      "category": 5,
+      "image": "products/product_images/overnight_oats.png"
+    }
+  },
+  {
+    "model": "store.product",
+    "pk": 19,
+    "fields": {
+      "name": "Peanut Butter",
+      "description": "100% peanuts, smooth.",
+      "price": "3.69",
+      "stock": 85,
+      "category": 5,
+      "image": "products/product_images/peanut_butter.png"
+    }
+  },
+  {
+    "model": "store.product",
+    "pk": 20,
+    "fields": {
+      "name": "Almond Milk",
+      "description": "Unsweetened barista blend.",
+      "price": "1.79",
+      "stock": 110,
+      "category": 5,
+      "image": "products/product_images/almond_milk.png"
+    }
+  },
+  {
+    "model": "store.product",
+    "pk": 21,
+    "fields": {
+      "name": "Quinoa",
+      "description": "Tri-color organic quinoa 500g.",
+      "price": "3.49",
+      "stock": 90,
+      "category": 6,
+      "image": "products/product_images/quinoa.png"
+    }
+  },
+  {
+    "model": "store.product",
+    "pk": 22,
+    "fields": {
+      "name": "Brown Rice",
+      "description": "Wholegrain long grain 1kg.",
+      "price": "2.29",
+      "stock": 100,
+      "category": 6,
+      "image": "products/product_images/brown_rice.png"
+    }
+  },
+  {
+    "model": "store.product",
+    "pk": 23,
+    "fields": {
+      "name": "Chickpeas (Tin)",
+      "description": "BPA-free can, ready to eat.",
+      "price": "0.99",
+      "stock": 140,
+      "category": 6,
+      "image": "products/product_images/chickpeas_(tin).png"
+    }
+  },
+  {
+    "model": "store.product",
+    "pk": 24,
+    "fields": {
+      "name": "Extra Virgin Olive Oil",
+      "description": "Cold pressed, 500ml.",
+      "price": "6.99",
+      "stock": 55,
+      "category": 6,
+      "image": "products/product_images/extra_virgin_olive_oil.png"
+    }
+  }
+]

@@ -1,2 +1,38 @@
+.hf-hero { background: linear-gradient(rgba(25,135,84,0.85), rgba(25,135,84,0.85)), url('/static/store/hero.jpg') center/cover no-repeat;}
 
-.card img { object-fit: cover; height: 180px; }
+.hf-card-img { object-fit: cover; height: 180px; }
+
+.text-primary { color: #27ae60 !important; }
+
+.text-secondary { color: #f39c12 !important; }
+
+body { color: #333333; background-color: #f8f9fa; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+
+h1, h2, h3, h4 { color: #2c3e50; font-weight: 700; }
+
+.btn-success {  background-color: #27ae60;border-color: #27ae60; }
+
+.btn-success:hover { background-color: #219150; border-color: #1e8449; }
+
+.btn-outline-light { color: #f39c12; border-color: #f39c12;}
+
+.btn-outline-light:hover {  background-color: #f39c12; color: #fff; }
+
+footer { background-color: #2c3e50; color: white; padding: 20px 0;text-align: center; }
+
+footer a { color: #f39c12; text-decoration: none; }
+
+footer a:hover { text-decoration: underline; }
+
+footer a:hover { opacity: .85; }
+
+
+.hf-wish-card .hf-remove { box-shadow: 0 2px 6px rgba(0,0,0,.15); width: 34px; height: 34px; display:flex; align-items:center; justify-content:center; }
+.hf-wish-card .hf-remove:hover { background:#ffeaea; color:#c0392b; }
+
+.hf-card-img { object-fit: cover; height: 180px; }
+
+
+.card .border.rounded.p-2 { background: #fff; }
+
+.hf-user-dropdown { border-radius: 12px;min-width: 260px;border: 1px solid rgba(0,0,0,.08); }

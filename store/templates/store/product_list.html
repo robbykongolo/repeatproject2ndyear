@@ -1,34 +1,58 @@
-
 {% extends 'store/base.html' %}
+{% load static %}
 {% block content %}
-<h1 class="mb-3">Products</h1>
-<div class="row row-cols-1 row-cols-md-4 g-4">
-  {% for p in products %}
-  <div class="col">
-    <div class="card h-100">
-      {% if p.image %}
-      <img src="{{ p.image.url }}" class="card-img-top" alt="{{ p.name }}">
-      {% endif %}
-      <div class="card-body">
-        <h5 class="card-title">{{ p.name }}</h5>
-        <p class="card-text">€{{ p.price }}</p>
-        <a class="btn btn-success" href="{% url 'product_detail' p.pk %}">View</a>
+
+<section class="hf-hero">
+  <div class="container py-5">
+    <div class="row align-items-center g-4">
+      <div class="col-lg-7">
+        <h1 class="display-5 fw-bold text-primary">Eat better. Feel better.</h1>
+        <p class="lead mb-4 text-secondary">Discover curated health foods, snacks, and supplements. Clean ingredients, transparent pricing, fast checkout.</p>
+        <a href="#catalogue" class="btn btn-success btn-lg me-2">Shop now</a>
+        <a href="{% url 'wishlist' %}" class="btn btn-outline-light btn-lg text-secondary">My wishlist</a>
+      </div>
+      <div class="col-lg-5 d-none d-lg-block">
+        <img class="img-fluid rounded-4 shadow" src="{% static 'store/hero.jpg' %}" alt="Health foods">
       </div>
     </div>
   </div>
-  {% empty %}
-  <p>No products yet.</p>
-  {% endfor %}
+</section>
+
+<div class="container py-4" id="catalogue">
+  <h2 class="mb-3">Products</h2>
+  <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
+    {% for p in products %}
+    <div class="col">
+      <div class="card h-100 shadow-sm">
+        {% if p.image %}
+          <img src="{{ p.image.url }}" class="card-img-top hf-card-img" alt="{{ p.name }}">
+        {% else %}
+          <img src="{% static 'store/placeholder.jpg' %}" class="card-img-top hf-card-img" alt="No image">
+        {% endif %}
+        <div class="card-body">
+          <h5 class="card-title mb-1">{{ p.name }}</h5>
+          <div class="text-muted small mb-2">{{ p.category.name }}</div>
+          <div class="fw-bold mb-3">€{{ p.price|floatformat:2 }}</div>
+          <a class="btn btn-success w-100" href="{% url 'product_detail' p.pk %}">View</a>
+        </div>
+      </div>
+    </div>
+    {% empty %}
+    <p>No products yet.</p>
+    {% endfor %}
+  </div>
+
+  <!-- Pagination -->
+  <nav class="mt-4">
+    <ul class="pagination">
+      {% if products.has_previous %}
+        <li class="page-item"><a class="page-link" href="?page={{ products.previous_page_number }}&q={{ q }}">Previous</a></li>
+      {% endif %}
+      <li class="page-item disabled"><span class="page-link">Page {{ products.number }} of {{ products.paginator.num_pages }}</span></li>
+      {% if products.has_next %}
+        <li class="page-item"><a class="page-link" href="?page={{ products.next_page_number }}&q={{ q }}">Next</a></li>
+      {% endif %}
+    </ul>
+  </nav>
 </div>
-<nav class="mt-4">
-  <ul class="pagination">
-    {% if products.has_previous %}
-      <li class="page-item"><a class="page-link" href="?page={{ products.previous_page_number }}&q={{ q }}">Previous</a></li>
-    {% endif %}
-    <li class="page-item disabled"><span class="page-link">Page {{ products.number }} of {{ products.paginator.num_pages }}</span></li>
-    {% if products.has_next %}
-      <li class="page-item"><a class="page-link" href="?page={{ products.next_page_number }}&q={{ q }}">Next</a></li>
-    {% endif %}
-  </ul>
-</nav>
 {% endblock %}

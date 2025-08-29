@@ -1,59 +1,81 @@
-{% extends 'store/base.html' %}
+{% extends "store/base.html" %}
+{% load static %}
+
 {% block content %}
-<h2 class="mb-3">Your Orders</h2>
+<div class="container py-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="mb-0">My Orders</h2>
+    <span class="badge bg-success fs-6">{{ orders|length }} order{{ orders|length|pluralize }}</span>
+  </div>
 
-{% if orders %}
-  {% for order in orders %}
-    <div class="card mb-4 shadow-sm">
-      <div class="card-header d-flex justify-content-between align-items-center">
-        <div>
-          <strong>Order #{{ order.id }}</strong>
-          <small class="text-muted ms-2">placed {{ order.created_at|date:"Y-m-d H:i" }}</small>
+  {% if orders %}
+    {% for order in orders %}
+      <div class="card mb-4 shadow-sm">
+        <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
+          <div>
+            <strong>Order #{{ order.id }}</strong>
+            <small class="text-muted ms-2">Placed {{ order.created_at|date:"Y-m-d H:i" }}</small>
+          </div>
+          <div class="d-flex align-items-center gap-2">
+            <span class="badge bg-success">Paid</span>
+            <span class="badge bg-light text-dark">Items: {{ order.items.count }}</span>
+          </div>
         </div>
-        <span class="badge bg-success">Paid</span>
-      </div>
 
-      <div class="table-responsive">
-        <table class="table mb-0 align-middle">
-          <thead class="table-light">
-            <tr>
-              <th>Product</th>
-              <th class="text-end">Qty</th>
-              <th class="text-end">Unit (€)</th>
-              <th class="text-end">Subtotal (€)</th>
-            </tr>
-          </thead>
-          <tbody>
+        <div class="card-body">
+          <div class="row g-3">
             {% for item in order.items.all %}
-              <tr>
-                <td>{{ item.product.name }}</td>
-                <td class="text-end">{{ item.quantity }}</td>
-                <td class="text-end">{{ item.product.price|floatformat:2 }}</td>
-                <td class="text-end">{{ item.subtotal|floatformat:2 }}</td>
-              </tr>
+              <div class="col-12 col-md-6 col-lg-4">
+                <div class="d-flex align-items-center border rounded p-2 h-100">
+                  <div class="me-3" style="width:64px; height:64px;">
+                    {% if item.product.image %}
+                      <img src="{{ item.product.image.url }}" class="img-fluid rounded" style="width:64px;height:64px;object-fit:cover;" alt="{{ item.product.name }}">
+                    {% else %}
+                      <img src="{% static 'store/placeholder.jpg' %}" class="img-fluid rounded" style="width:64px;height:64px;object-fit:cover;" alt="No image">
+                    {% endif %}
+                  </div>
+                  <div class="flex-grow-1">
+                    <div class="fw-semibold">{{ item.product.name }}</div>
+                    <div class="text-muted small">{{ item.product.category.name }}</div>
+                    <div class="small">
+                      Qty: {{ item.quantity }} · Unit: €{{ item.product.price|floatformat:2 }}
+                    </div>
+                  </div>
+                  <div class="ms-3 fw-semibold">€{{ item.subtotal|floatformat:2 }}</div>
+                </div>
+              </div>
             {% endfor %}
-          </tbody>
-          <tfoot>
-            <tr class="table-light">
-              <th colspan="3" class="text-end">Total (€)</th>
-              <th class="text-end">{{ order.total_amount|floatformat:2 }}</th>
-            </tr>
-          </tfoot>
-        </table>
-      </div>
+          </div>
+        </div>
 
-      <div class="card-footer d-flex justify-content-between">
-        <small class="text-muted">
-          {% if order.stripe_checkout_session_id %}
-            Stripe Session: <code>{{ order.stripe_checkout_session_id }}</code>
-          {% endif %}
-        </small>
-        <a class="btn btn-sm btn-outline-secondary" href="{% url 'product_list' %}">Continue shopping</a>
+        <div class="card-footer d-flex flex-wrap justify-content-between align-items-center gap-2">
+          <div class="small text-muted">
+            {% if order.stripe_checkout_session_id %}
+              Stripe Session: <code>{{ order.stripe_checkout_session_id }}</code>
+            {% endif %}
+          </div>
+          <div class="d-flex gap-2">
+            <a class="btn btn-outline-secondary" href="{% url 'product_list' %}">Shop more</a>
+            <form method="post" action="{% url 'reorder' order.id %}">
+              {% csrf_token %}
+              <button class="btn btn-success">
+                <i class="fa-solid fa-rotate-right me-1"></i> Reorder items
+              </button>
+            </form>
+            <div class="btn btn-light disabled">
+              Total: <strong>€{{ order.total_amount|floatformat:2 }}</strong>
+            </div>
+          </div>
+        </div>
       </div>
+    {% endfor %}
+  {% else %}
+    <div class="text-center py-5">
+      <img src="{% static 'store/placeholder.jpg' %}" class="mb-3 rounded-4" style="max-width:180px" alt="">
+      <h4 class="mb-2">No orders yet</h4>
+      <p class="text-muted mb-3">When you place an order, it will appear here.</p>
+      <a class="btn btn-success" href="{% url 'product_list' %}">Browse products</a>
     </div>
-  {% endfor %}
-{% else %}
-  <div class="alert alert-info">You don't have any paid orders yet.</div>
-  <a class="btn btn-success" href="{% url 'product_list' %}">Browse products</a>
-{% endif %}
+  {% endif %}
+</div>
 {% endblock %}

@@ -1,11 +1,85 @@
-{% extends 'store/base.html' %}
+{% extends "store/base.html" %}
+{% load static %}
+
 {% block content %}
-<h2>Checkout</h2>
-<p>Click the button to pay securely with Stripe.</p>
+<div class="container py-4">
 
-<form method="post" action="{% url 'create_checkout_session' %}">
-  {% csrf_token %}
-  <button class="btn btn-primary">Pay with Stripe</button>
-</form>
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="mb-0">Checkout</h2>
+    <span class="badge bg-success fs-6">
+      {{ order.items.count }} item{{ order.items.count|pluralize }}
+    </span>
+  </div>
 
+  <div class="row g-4">
+    <div class="col-lg-8">
+      {% if order.items.all %}
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-2 g-4">
+          {% for item in order.items.all %}
+          <div class="col">
+            <div class="card h-100 shadow-sm">
+              <div class="position-relative">
+                {% if item.product.image %}
+                  <img src="{{ item.product.image.url }}" class="card-img-top hf-card-img" alt="{{ item.product.name }}">
+                {% else %}
+                  <img src="{% static 'store/placeholder.jpg' %}" class="card-img-top hf-card-img" alt="No image">
+                {% endif %}
+              </div>
+              <div class="card-body d-flex flex-column">
+                <div class="small text-muted">{{ item.product.category.name }}</div>
+                <h5 class="card-title mt-1 mb-1">{{ item.product.name }}</h5>
+                <div class="d-flex justify-content-between small text-muted mb-2">
+                  <span>Qty: {{ item.quantity }}</span>
+                  <span>Unit: €{{ item.product.price|floatformat:2 }}</span>
+                </div>
+                <div class="fw-bold mt-auto">Subtotal: €{{ item.subtotal|floatformat:2 }}</div>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="alert alert-info">Your cart is empty.</div>
+      {% endif %}
+    </div>
+
+    <div class="col-lg-4">
+      <div class="card shadow-sm">
+        <div class="card-header">
+          <strong>Order Total</strong>
+        </div>
+        <div class="card-body">
+          <div class="d-flex justify-content-between mb-2">
+            <span>Items ({{ order.items.count }})</span>
+            <span>€{{ order.total_amount|floatformat:2 }}</span>
+          </div>
+          <div class="d-flex justify-content-between mb-2">
+            <span>Shipping</span>
+            <span>€0.00</span>
+          </div>
+          <hr>
+          <div class="d-flex justify-content-between fs-5 fw-bold">
+            <span>Total</span>
+            <span>€{{ order.total_amount|floatformat:2 }}</span>
+          </div>
+
+          <form method="post" action="{% url 'create_checkout_session' %}" class="d-grid mt-3">
+            {% csrf_token %}
+            <button class="btn btn-success btn-lg">
+              <i class="fa-solid fa-credit-card me-1"></i> Pay with Stripe
+            </button>
+          </form>
+
+          <p class="text-muted small mt-3 mb-0">
+            You’ll be redirected to Stripe’s secure checkout. Use test card <code>4242 4242 4242 4242</code>.
+          </p>
+        </div>
+      </div>
+
+      <div class="text-center mt-3">
+        <a href="{% url 'cart' %}" class="btn btn-outline-secondary w-100">Back to Cart</a>
+      </div>
+    </div>
+  </div>
+</div>
 {% endblock %}

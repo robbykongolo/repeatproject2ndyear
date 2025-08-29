@@ -1,9 +1,9 @@
 from django.urls import path
 from . import views
-
 from django.contrib import messages
 from django.shortcuts import resolve_url
-from django.contrib.auth.views import  LoginView
+from django.contrib.auth.views import LoginView
+from django.contrib.auth import views as auth_views
 from .forms import SignUpForm
 
 class CustomLoginView(LoginView):
@@ -32,10 +32,16 @@ urlpatterns = [
     path('wishlist/', views.wishlist_view, name='wishlist'),
     path('wishlist/add/<int:pk>/', views.add_to_wishlist, name='add_to_wishlist'),
     path('wishlist/remove/<int:pk>/', views.remove_from_wishlist, name='remove_from_wishlist'),
+    path("wishlist/move-to-cart/", views.move_wishlist_to_cart, name="move_wishlist_to_cart"),
 
     path('orders/', views.order_history, name='order_history'),
+    path("orders/reorder/<int:order_id>/", views.reorder, name="reorder"),
+
 
     path('signup/', views.signup, name='signup'),
     path('login/', CustomLoginView.as_view(), name='login'),
     path('logout/', views.logout_view, name='logout'),
+    path('password_change/', auth_views.PasswordChangeView.as_view(template_name="store/password_change.html"), name='password_change'),
+    path('password_change/done/', auth_views.PasswordChangeDoneView.as_view(template_name="store/password_change_done.html"), name='password_change_done'),
+
 ]

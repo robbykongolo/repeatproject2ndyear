@@ -4,18 +4,17 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.http import HttpResponse
 from django.core.paginator import Paginator
-from django.db.models import Q
+from django.db.models import Q, Avg
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login as auth_login
 from .forms import SignUpForm
 from django.contrib.auth import logout
 from django.shortcuts import redirect
-from .models import Product, Order, OrderItem, Wishlist
+from .models import Product, Order, OrderItem, Wishlist, Review
 from django.conf import settings
 from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
 import stripe
-
 stripe.api_key = settings.STRIPE_SECRET_KEY
 
 
@@ -34,7 +33,45 @@ def product_list(request):
 
 def product_detail(request, pk):
     product = get_object_or_404(Product, pk=pk)
-    return render(request, "store/product_detail.html", {"product": product})
+    reviews = product.reviews.select_related('user').order_by('-created_at')
+    avg_rating = reviews.aggregate(a=Avg('rating'))['a'] or 0
+
+    can_review = False
+    if request.user.is_authenticated:
+        can_review = OrderItem.objects.filter(
+            order__user=request.user,
+            order__is_paid=True,
+            product=product,
+        ).exists()
+
+    if request.method == "POST":
+        if not request.user.is_authenticated:
+            messages.error(request, "Please log in to review.")
+            return redirect('login')
+
+        if not can_review:
+            messages.error(request, "You can only review items you've purchased.")
+            return redirect('product_detail', pk=pk)
+
+        rating = int(request.POST.get('rating', 0))
+        comment = (request.POST.get('comment') or '').strip()
+        if 1 <= rating <= 5:
+            Review.objects.update_or_create(
+                product=product, user=request.user,
+                defaults={'rating': rating, 'comment': comment}
+            )
+            messages.success(request, "Thanks for your review!")
+        else:
+            messages.error(request, "Please choose a rating between 1 and 5.")
+        return redirect('product_detail', pk=pk)
+
+    return render(request, "store/product_detail.html", {
+        "product": product,
+        "reviews": reviews,
+        "avg_rating": avg_rating,
+        "can_review": can_review,
+    })
+
 
 def signup(request):
     if request.method == "POST":
@@ -167,11 +204,17 @@ def stripe_webhook(request):
 
         try:
             order = Order.objects.get(stripe_checkout_session_id=session_id)
-            if not order.is_paid:
-                order.is_paid = True
-                order.save()
         except Order.DoesNotExist:
-            pass
+            return HttpResponse(status=200) 
+
+        if not order.is_paid:
+            for item in order.items.select_related('product'):
+                if hasattr(item.product, "stock"):
+                    item.product.stock = max(0, item.product.stock - item.quantity)
+                    item.product.save()
+
+            order.is_paid = True
+            order.save()
 
     return HttpResponse(status=200)
 
@@ -179,6 +222,10 @@ def stripe_webhook(request):
 @login_required
 def wishlist_view(request):
     wishlist, _ = Wishlist.objects.get_or_create(user=request.user)
+    wishlist = (Wishlist.objects
+                .filter(pk=wishlist.pk)
+                .prefetch_related('products__category')
+                .get())
     return render(request, "store/wishlist.html", {"wishlist": wishlist})
 
 @login_required
@@ -196,14 +243,56 @@ def remove_from_wishlist(request, pk):
     return redirect("wishlist")
 
 @login_required
+def move_wishlist_to_cart(request):
+    wishlist, _ = Wishlist.objects.get_or_create(user=request.user)
+    order, _ = Order.objects.get_or_create(user=request.user, is_paid=False)
+
+    if wishlist.products.exists():
+        for product in wishlist.products.all():
+            item, created = OrderItem.objects.get_or_create(order=order, product=product)
+            if not created:
+                item.quantity += 1
+            item.save()
+
+        wishlist.products.clear()
+        messages.success(request, "All wishlist items were added to your cart.")
+    else:
+        messages.info(request, "Your wishlist is empty.")
+
+    return redirect("cart")
+
+
+@login_required
 def order_history(request):
     orders = (
         Order.objects
         .filter(user=request.user, is_paid=True)
-        .prefetch_related('items__product')
+        .prefetch_related('items__product', 'items__product__category')
         .order_by('-created_at')
     )
     return render(request, "store/order_history.html", {"orders": orders})
+
+@login_required
+def reorder(request, order_id):
+    if request.method != "POST":
+        messages.error(request, "Invalid method.")
+        return redirect("order_history")
+
+    prev = get_object_or_404(Order, pk=order_id, user=request.user, is_paid=True)
+    cart, _ = Order.objects.get_or_create(user=request.user, is_paid=False)
+
+    for item in prev.items.select_related('product'):
+        new_item, created = OrderItem.objects.get_or_create(order=cart, product=item.product)
+        if created:
+            new_item.quantity = item.quantity
+        else:
+            new_item.quantity += item.quantity
+        new_item.save()
+
+    messages.success(request, f"Reordered {prev.items.count()} item(s) into your cart.")
+    return redirect("cart")
+
+
 
 def logout_view(request):
     """Log the user out and always redirect to the product list with a flash."""

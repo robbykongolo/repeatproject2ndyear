@@ -1,18 +1,106 @@
-
 {% extends 'store/base.html' %}
+{% load static %}
 {% block content %}
-<div class="row">
-  <div class="col-md-6">{% if product.image %}<img src="{{ product.image.url }}" class="img-fluid">{% endif %}</div>
-  <div class="col-md-6">
-    <h2>{{ product.name }}</h2>
-    <p>{{ product.description }}</p>
-    <h4>€{{ product.price }}</h4>
-    {% if user.is_authenticated %}
-      <a class="btn btn-success" href="{% url 'add_to_cart' product.pk %}">Add to cart</a>
-      <a class="btn btn-outline-secondary" href="{% url 'add_to_wishlist' product.pk %}">Add to wishlist</a>
+<div class="container py-4">
+  <div class="row g-4">
+    <div class="col-md-6">
+      {% if product.image %}
+        <img src="{{ product.image.url }}" class="img-fluid rounded-4 shadow-sm" alt="{{ product.name }}">
+      {% else %}
+        <img src="{% static 'store/placeholder.jpg' %}" class="img-fluid rounded-4 shadow-sm" alt="No image">
+      {% endif %}
+    </div>
+
+    <div class="col-md-6">
+      <h2 class="mb-1">{{ product.name }}</h2>
+      <div class="text-muted mb-2">{{ product.category.name }}</div>
+
+      <!-- Average rating -->
+      <div class="mb-2">
+        {% for i in "12345" %}
+          {% if forloop.counter <= avg_rating|floatformat:0 %}
+            <i class="fa-solid fa-star text-warning"></i>
+          {% else %}
+            <i class="fa-regular fa-star text-warning"></i>
+          {% endif %}
+        {% endfor %}
+        <span class="ms-1 text-muted small">({{ reviews.count }} review{{ reviews.count|pluralize }})</span>
+      </div>
+
+      <p class="lead">{{ product.description }}</p>
+      <h3 class="fw-bold mb-3">€{{ product.price|floatformat:2 }}</h3>
+
+      {% if user.is_authenticated %}
+        <div class="d-flex gap-2 mb-3">
+          <a class="btn btn-success" href="{% url 'add_to_cart' product.pk %}"><i class="fa-solid fa-cart-plus me-1"></i>Add to cart</a>
+          <a class="btn btn-outline-secondary" href="{% url 'add_to_wishlist' product.pk %}"><i class="fa-regular fa-heart me-1"></i>Wishlist</a>
+        </div>
+      {% else %}
+        <p class="text-muted">Please <a href="{% url 'login' %}">log in</a> to purchase or review.</p>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Reviews -->
+  <div class="row mt-5">
+    <div class="col-lg-7">
+      <h4 class="mb-3">Customer Reviews</h4>
+      {% if reviews %}
+        <ul class="list-group">
+          {% for r in reviews %}
+          <li class="list-group-item">
+            <div class="d-flex justify-content-between">
+              <div>
+                {% for i in "12345" %}
+                  {% if forloop.counter <= r.rating %}
+                    <i class="fa-solid fa-star text-warning"></i>
+                  {% else %}
+                    <i class="fa-regular fa-star text-warning"></i>
+                  {% endif %}
+                {% endfor %}
+              </div>
+              <small class="text-muted">{{ r.created_at|date:"Y-m-d H:i" }}</small>
+            </div>
+            <div class="mt-1 small text-muted">by {{ r.user.username }}</div>
+            {% if r.comment %}<p class="mb-0 mt-2">{{ r.comment }}</p>{% endif %}
+          </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p class="text-muted">No reviews yet. Be the first!</p>
+      {% endif %}
+    </div>
+
+    <div class="col-lg-5">
+      <h4 class="mb-3">Leave a review</h4>
+      {% if user.is_authenticated %}
+        <form method="post" class="card card-body shadow-sm">
+          {% csrf_token %}
+          <div class="mb-2">
+            <label class="form-label">Rating</label><br>
+            {% for val in "54321" %}
+              <input type="radio" class="btn-check" name="rating" id="star{{ val }}" value="{{ val }}">
+              <label class="btn btn-outline-warning me-1" for="star{{ val }}">
+                <i class="fa-regular fa-star"></i> {{ val }}
+            </label>
+          {% endfor %}
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Comment (optional)</label>
+          <textarea name="comment" class="form-control" rows="3" placeholder="What did you like?"></textarea>
+        </div>
+
+        <button class="btn btn-success">Submit review</button>
+      </form>
+    {% elif user.is_authenticated %}
+      <p class="text-muted">
+        You can only review products you've purchased.
+      </p>
     {% else %}
-      <p>Please log in to purchase.</p>
+      <p class="text-muted">Please <a href="{% url 'login' %}">log in</a> to leave a review.</p>
     {% endif %}
+    </div>
   </div>
 </div>
 {% endblock %}
