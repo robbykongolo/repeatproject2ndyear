@@ -1,10 +1,9 @@
-
 from django.urls import path
+from . import views
+
 from django.contrib import messages
 from django.shortcuts import resolve_url
-from django.contrib.auth.views import  LoginView, LogoutView
-
-from . import views
+from django.contrib.auth.views import  LoginView
 from .forms import SignUpForm
 
 class CustomLoginView(LoginView):
@@ -15,16 +14,6 @@ class CustomLoginView(LoginView):
         messages.success(self.request, f"Welcome back, {self.request.user.username}!")
         return response
 
-class CustomLogoutView(LogoutView):
-    next_page = "product_list"
-    http_method_names = ["get", "post"]
-
-    def dispatch(self, request, *args, **kwargs):
-        messages.info(request, "You have been logged out. See you soon!")
-        return super().dispatch(request, *args, **kwargs)
-
-    def get_next_page(self):
-        return resolve_url(self.next_page)
 
 urlpatterns = [
     path('', views.product_list, name='product_list'),
@@ -35,6 +24,10 @@ urlpatterns = [
     path('decrement/<int:pk>/', views.decrement_from_cart, name='decrement_from_cart'),
     path('remove-from-cart/<int:pk>/', views.remove_from_cart, name='remove_from_cart'),
     path('checkout/', views.checkout, name='checkout'),
+    path('create-checkout-session/', views.create_checkout_session, name='create_checkout_session'),
+    path('success/', views.payment_success, name='payment_success'),
+    path('cancel/', views.payment_cancel, name='payment_cancel'),
+    path('stripe/webhook/', views.stripe_webhook, name='stripe_webhook'),
 
     path('wishlist/', views.wishlist_view, name='wishlist'),
     path('wishlist/add/<int:pk>/', views.add_to_wishlist, name='add_to_wishlist'),
@@ -44,6 +37,5 @@ urlpatterns = [
 
     path('signup/', views.signup, name='signup'),
     path('login/', CustomLoginView.as_view(), name='login'),
-    path('logout/', CustomLogoutView.as_view(), name='logout'),
-
+    path('logout/', views.logout_view, name='logout'),
 ]

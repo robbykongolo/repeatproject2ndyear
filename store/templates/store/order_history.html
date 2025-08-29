@@ -1,19 +1,59 @@
-
 {% extends 'store/base.html' %}
 {% block content %}
-<h2>Order History</h2>
-{% for order in orders %}
-  <div class="card mb-3">
-    <div class="card-body">
-      <strong>Order #{{ order.id }}</strong> — {{ order.created_at|date:"Y-m-d H:i" }}
-      <ul class="mt-2">
-        {% for item in order.items.all %}
-          <li>{{ item.product.name }} x {{ item.quantity }}</li>
-        {% endfor %}
-      </ul>
+<h2 class="mb-3">Your Orders</h2>
+
+{% if orders %}
+  {% for order in orders %}
+    <div class="card mb-4 shadow-sm">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <div>
+          <strong>Order #{{ order.id }}</strong>
+          <small class="text-muted ms-2">placed {{ order.created_at|date:"Y-m-d H:i" }}</small>
+        </div>
+        <span class="badge bg-success">Paid</span>
+      </div>
+
+      <div class="table-responsive">
+        <table class="table mb-0 align-middle">
+          <thead class="table-light">
+            <tr>
+              <th>Product</th>
+              <th class="text-end">Qty</th>
+              <th class="text-end">Unit (€)</th>
+              <th class="text-end">Subtotal (€)</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in order.items.all %}
+              <tr>
+                <td>{{ item.product.name }}</td>
+                <td class="text-end">{{ item.quantity }}</td>
+                <td class="text-end">{{ item.product.price|floatformat:2 }}</td>
+                <td class="text-end">{{ item.subtotal|floatformat:2 }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+          <tfoot>
+            <tr class="table-light">
+              <th colspan="3" class="text-end">Total (€)</th>
+              <th class="text-end">{{ order.total_amount|floatformat:2 }}</th>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+
+      <div class="card-footer d-flex justify-content-between">
+        <small class="text-muted">
+          {% if order.stripe_checkout_session_id %}
+            Stripe Session: <code>{{ order.stripe_checkout_session_id }}</code>
+          {% endif %}
+        </small>
+        <a class="btn btn-sm btn-outline-secondary" href="{% url 'product_list' %}">Continue shopping</a>
+      </div>
     </div>
-  </div>
-{% empty %}
-<p>No past orders.</p>
-{% endfor %}
+  {% endfor %}
+{% else %}
+  <div class="alert alert-info">You don't have any paid orders yet.</div>
+  <a class="btn btn-success" href="{% url 'product_list' %}">Browse products</a>
+{% endif %}
 {% endblock %}

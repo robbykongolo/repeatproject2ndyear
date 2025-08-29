@@ -1,31 +1,52 @@
-
 {% extends 'store/base.html' %}
 {% block content %}
 <h2>Your Cart</h2>
+
 {% if order.items.all %}
-<table class="table">
-  <thead><tr><th>Product</th><th>Qty</th><th>Price</th><th></th></tr></thead>
-  <tbody>
-  {% with total=0 %}
-  {% for item in order.items.all %}
-    <tr>
-      <td>{{ item.product.name }}</td>
-      <td>
-        <a class="btn btn-sm btn-outline-secondary" href="{% url 'decrement_from_cart' item.product.pk %}">-</a>
-        {{ item.quantity }}
-        <a class="btn btn-sm btn-outline-secondary" href="{% url 'add_to_cart' item.product.pk %}">+</a>
-      </td>
-      <td>€{{ item.product.price|floatformat:2 }}</td>
-      <td><a class="btn btn-sm btn-danger" href="{% url 'remove_from_cart' item.product.pk %}">Remove</a></td>
-    </tr>
-  {% endfor %}
-  {% endwith %}
-  </tbody>
-</table>
-<form method="post" action="{% url 'checkout' %}">{% csrf_token %}
-  <button class="btn btn-success">Proceed to Checkout (Demo)</button>
-</form>
+  <div class="table-responsive">
+    <table class="table align-middle">
+      <thead class="table-light">
+        <tr>
+          <th>Product</th>
+          <th class="text-end">Qty</th>
+          <th class="text-end">Unit (€)</th>
+          <th class="text-end">Subtotal (€)</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in order.items.all %}
+          <tr>
+            <td>{{ item.product.name }}</td>
+            <td class="text-end">
+              <a class="btn btn-sm btn-outline-secondary" href="{% url 'decrement_from_cart' item.product.pk %}">-</a>
+              <span class="mx-2">{{ item.quantity }}</span>
+              <a class="btn btn-sm btn-outline-secondary" href="{% url 'add_to_cart' item.product.pk %}">+</a>
+            </td>
+            <td class="text-end">{{ item.product.price|floatformat:2 }}</td>
+            <td class="text-end">{{ item.subtotal|floatformat:2 }}</td>
+            <td class="text-end">
+              <a class="btn btn-sm btn-danger" href="{% url 'remove_from_cart' item.product.pk %}">Remove</a>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+      <tfoot>
+        <tr class="table-light">
+          <th colspan="3" class="text-end">Total (€)</th>
+          <th class="text-end">{{ order.total_amount|floatformat:2 }}</th>
+          <th></th>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+
+  <form method="post" action="{% url 'create_checkout_session' %}">
+    {% csrf_token %}
+    <button class="btn btn-success">Proceed to Checkout</button>
+  </form>
 {% else %}
-<p>Your cart is empty.</p>
+  <p>Your cart is empty.</p>
 {% endif %}
 {% endblock %}
+

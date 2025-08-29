@@ -71,6 +71,7 @@ LOGIN_REDIRECT_URL = 'product_list'
 LOGOUT_REDIRECT_URL = 'product_list'
 LOGIN_URL = 'login'
 
+
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'store' / 'static']
 
@@ -79,6 +80,6 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# Stripe placeholders
-STRIPE_PUBLIC_KEY = os.environ.get('STRIPE_PUBLIC_KEY', 'pk_test_xxx')
-STRIPE_SECRET_KEY = os.environ.get('STRIPE_SECRET_KEY', 'sk_test_xxx')
+STRIPE_PUBLIC_KEY  = os.environ.get('STRIPE_PUBLIC_KEY',  'pk_test_51S1GuGRphuEty4Qr2OvsIDTwD7E6gLqD8elTxtLsVFwHwVBX7a5m0yucMP9vVHnAoMDnYgNmaaIo9haVegL9tyPR008rXzeG2O')
+STRIPE_SECRET_KEY  = os.environ.get('STRIPE_SECRET_KEY',  'sk_test_51S1GuGRphuEty4QrwSgszdLYWNiJNclbH1H7pWR3Af4JUp9Y2uESPCqAM51dej3ai2tVHdMplRncIzqDWIfRWnQ1000syOzmMd')
+STRIPE_WEBHOOK_SECRET = os.environ.get('STRIPE_WEBHOOK_SECRET', 'whsec_0aaebd339bbbfddcfb61ed061f57d00db5a92d7c712a71a424aca66f29e38874')

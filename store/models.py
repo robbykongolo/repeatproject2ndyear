@@ -1,6 +1,7 @@
 
 from django.db import models
 from django.contrib.auth.models import User
+from decimal import Decimal 
 
 class Category(models.Model):
     name = models.CharField(max_length=100)
@@ -23,10 +24,14 @@ class Order(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     is_paid = models.BooleanField(default=False)
-    stripe_payment_intent = models.CharField(max_length=255, blank=True, null=True)
+    
+    stripe_checkout_session_id = models.CharField(max_length=255, blank=True, null=True)
 
     def __str__(self):
         return f"Order {self.id} - {self.user.username}"
+
+    def total_amount(self):
+        return sum((item.subtotal() for item in self.items.select_related('product')), Decimal('0'))
 
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name="items")
@@ -35,6 +40,9 @@ class OrderItem(models.Model):
 
     def __str__(self):
         return f"{self.product.name} x {self.quantity}"
+
+    def subtotal(self):
+        return (self.product.price or Decimal("0")) * self.quantity
 
 class Wishlist(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)

@@ -1,9 +1,11 @@
-
 {% extends 'store/base.html' %}
 {% block content %}
 <h2>Checkout</h2>
-<p>This is a demo checkout that marks the order as paid without real Stripe.</p>
-<form method="post">{% csrf_token %}
-  <button class="btn btn-primary">Confirm Payment (Demo)</button>
+<p>Click the button to pay securely with Stripe.</p>
+
+<form method="post" action="{% url 'create_checkout_session' %}">
+  {% csrf_token %}
+  <button class="btn btn-primary">Pay with Stripe</button>
 </form>
+
 {% endblock %}

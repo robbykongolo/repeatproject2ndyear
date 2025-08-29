@@ -1,0 +1,67 @@
+[
+    {
+        "model": "store.category",
+        "pk": 1,
+        "fields": {
+            "name": "Fruits"
+        }
+    },
+    {
+        "model": "store.category",
+        "pk": 2,
+        "fields": {
+            "name": "Snacks"
+        }
+    },
+    {
+        "model": "store.category",
+        "pk": 3,
+        "fields": {
+            "name": "Supplements"
+        }
+    },
+    {
+        "model": "store.product",
+        "pk": 1,
+        "fields": {
+            "name": "Organic Apples",
+            "description": "Fresh organic apples, high in fiber and vitamin C.",
+            "price": "3.50",
+            "stock": 50,
+            "category": 1
+        }
+    },
+    {
+        "model": "store.product",
+        "pk": 2,
+        "fields": {
+            "name": "Mixed Nuts",
+            "description": "A healthy mix of almonds, walnuts, and cashews.",
+            "price": "5.99",
+            "stock": 30,
+            "category": 2
+        }
+    },
+    {
+        "model": "store.product",
+        "pk": 3,
+        "fields": {
+            "name": "Protein Powder",
+            "description": "Plant-based protein powder, vanilla flavor.",
+            "price": "19.99",
+            "stock": 20,
+            "category": 3
+        }
+    },
+    {
+        "model": "store.product",
+        "pk": 4,
+        "fields": {
+            "name": "Dried Mango",
+            "description": "Sweet dried mango slices with no added sugar.",
+            "price": "4.49",
+            "stock": 40,
+            "category": 2
+        }
+    }
+]
