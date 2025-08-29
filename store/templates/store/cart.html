@@ -1,0 +1,31 @@
+
+{% extends 'store/base.html' %}
+{% block content %}
+<h2>Your Cart</h2>
+{% if order.items.all %}
+<table class="table">
+  <thead><tr><th>Product</th><th>Qty</th><th>Price</th><th></th></tr></thead>
+  <tbody>
+  {% with total=0 %}
+  {% for item in order.items.all %}
+    <tr>
+      <td>{{ item.product.name }}</td>
+      <td>
+        <a class="btn btn-sm btn-outline-secondary" href="{% url 'decrement_from_cart' item.product.pk %}">-</a>
+        {{ item.quantity }}
+        <a class="btn btn-sm btn-outline-secondary" href="{% url 'add_to_cart' item.product.pk %}">+</a>
+      </td>
+      <td>€{{ item.product.price|floatformat:2 }}</td>
+      <td><a class="btn btn-sm btn-danger" href="{% url 'remove_from_cart' item.product.pk %}">Remove</a></td>
+    </tr>
+  {% endfor %}
+  {% endwith %}
+  </tbody>
+</table>
+<form method="post" action="{% url 'checkout' %}">{% csrf_token %}
+  <button class="btn btn-success">Proceed to Checkout (Demo)</button>
+</form>
+{% else %}
+<p>Your cart is empty.</p>
+{% endif %}
+{% endblock %}

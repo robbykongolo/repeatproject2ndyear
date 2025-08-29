@@ -1,0 +1,15 @@
+
+{% extends 'store/base.html' %}
+{% block content %}
+<h2>Your Wishlist</h2>
+<ul class="list-group">
+  {% for p in wishlist.products.all %}
+    <li class="list-group-item d-flex justify-content-between align-items-center">
+      {{ p.name }}
+      <a class="btn btn-sm btn-outline-danger" href="{% url 'remove_from_wishlist' p.pk %}">Remove</a>
+    </li>
+  {% empty %}
+    <li class="list-group-item">No items yet.</li>
+  {% endfor %}
+</ul>
+{% endblock %}
