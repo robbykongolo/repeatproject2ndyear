@@ -17,6 +17,8 @@ from django.views.decorators.csrf import csrf_exempt
 from vouchers.models import Voucher
 from vouchers.forms import VoucherApplyForm
 from decimal import Decimal
+from .forms import ShippingForm
+import stripe
 
 import stripe
 stripe.api_key = settings.STRIPE_SECRET_KEY
@@ -87,9 +89,11 @@ def signup(request):
             return redirect("product_list")
         else:
             messages.error(request, "Please fix the errors below.")
+            return render(request, "store/signup.html", {"form": form})
     else:
         form = SignUpForm()
-        return render(request, "store/signup.html", {"form": form})
+    return render(request, "store/signup.html", {"form": form})
+
 
 @login_required
 def cart_view(request):
@@ -168,13 +172,18 @@ def checkout(request):
         except Voucher.DoesNotExist:
             pass
 
+    form = ShippingForm(instance=order) 
+
     return render(request, "store/checkout.html", {
         "order": order,
         "total": total,
         "voucher": voucher,
         "discount": discount,
         "new_total": new_total,
+        "shipping_form": form,
     })
+
+stripe.api_key = settings.STRIPE_SECRET_KEY
 
 @login_required
 def create_checkout_session(request):
@@ -186,6 +195,12 @@ def create_checkout_session(request):
     if not order.items.exists():
         messages.error(request, "Your cart is empty.")
         return redirect("cart")
+
+    form = ShippingForm(request.POST, instance=order)
+    if not form.is_valid():
+        messages.error(request, "Please fix the shipping details below.")
+        return redirect("checkout")
+    form.save()
 
     line_items = []
     for item in order.items.select_related('product'):
@@ -199,16 +214,13 @@ def create_checkout_session(request):
         })
 
     discounts_param = None
-    voucher_id = request.session.get("voucher_id")
-    if voucher_id:
+    vid = request.session.get("voucher_id")
+    if vid:
         try:
-            v = Voucher.objects.get(id=voucher_id, active=True)
-            coupon = stripe.Coupon.create(
-                percent_off=int(v.discount),
-                duration="once"
-            )
+            from vouchers.models import Voucher
+            v = Voucher.objects.get(id=vid, active=True)
+            coupon = stripe.Coupon.create(percent_off=int(v.discount), duration="once")
             discounts_param = [{"coupon": coupon.id}]
-
             try:
                 order.voucher = v
                 order.discount = int(v.discount)
@@ -218,7 +230,7 @@ def create_checkout_session(request):
             pass
 
     success_url = request.build_absolute_uri(reverse("payment_success")) + "?session_id={CHECKOUT_SESSION_ID}"
-    cancel_url = request.build_absolute_uri(reverse("payment_cancel"))
+    cancel_url  = request.build_absolute_uri(reverse("payment_cancel"))
 
     session = stripe.checkout.Session.create(
         mode="payment",
@@ -227,12 +239,22 @@ def create_checkout_session(request):
         success_url=success_url,
         cancel_url=cancel_url,
         customer_email=request.user.email or None,
+        metadata={
+            "order_id": str(order.id),
+            "full_name": order.full_name,
+            "address1": order.address1,
+            "address2": order.address2,
+            "city": order.city,
+            "county": order.county,
+            "postcode": order.postcode,
+            "country": order.country,
+            "phone": order.phone,
+        },
         **({"discounts": discounts_param} if discounts_param else {})
     )
 
     order.stripe_checkout_session_id = session.id
     order.save()
-
     return redirect(session.url, code=303)
 
 

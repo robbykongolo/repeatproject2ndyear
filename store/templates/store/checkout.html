@@ -43,40 +43,46 @@
       {% endif %}
     </div>
 
-    <div class="d-flex justify-content-between mb-2">
-  <span>Items ({{ order.items.count }})</span>
-  <span>€{{ total|floatformat:2 }}</span>
-</div>
-
-{% if voucher %}
-  <div class="d-flex justify-content-between text-success mb-2">
-    <span>Voucher “{{ voucher.code }}” ({{ voucher.discount }}% off)</span>
-    <span>−€{{ discount|floatformat:2 }}</span>
-  </div>
-  <hr>
-  <div class="d-flex justify-content-between fs-5 fw-bold">
-    <span>Total</span>
-    <span>€{{ new_total|floatformat:2 }}</span>
-  </div>
-{% else %}
-  <hr>
-  <div class="d-flex justify-content-between fs-5 fw-bold">
-    <span>Total</span>
-    <span>€{{ total|floatformat:2 }}</span>
-  </div>
-{% endif %}
-
-
-          <form method="post" action="{% url 'create_checkout_session' %}" class="d-grid mt-3">
+    <div class="col-lg-4">
+      <div class="card shadow-sm">
+        <div class="card-header"><strong>Order & Shipping</strong></div>
+        <div class="card-body">
+          <form method="post" action="{% url 'create_checkout_session' %}">
             {% csrf_token %}
-            <button class="btn btn-success btn-lg">
-              <i class="fa-solid fa-credit-card me-1"></i> Pay with Stripe
-            </button>
-          </form>
 
-          <p class="text-muted small mt-3 mb-0">
-            You'll be redirected to Stripe's secure checkout.
-          </p>
+            <h5 class="mb-3">Shipping details</h5>
+            {{ shipping_form.as_p }}
+
+            <hr>
+            <div class="d-flex justify-content-between mb-2">
+              <span>Items ({{ order.items.count }})</span>
+              <span>€{{ total|floatformat:2 }}</span>
+            </div>
+
+            {% if voucher %}
+              <div class="d-flex justify-content-between text-success mb-2">
+                <span>Voucher “{{ voucher.code }}” ({{ voucher.discount }}% off)</span>
+                <span>−€{{ discount|floatformat:2 }}</span>
+              </div>
+              <hr>
+              <div class="d-flex justify-content-between fs-5 fw-bold">
+                <span>Total</span>
+                <span>€{{ new_total|floatformat:2 }}</span>
+              </div>
+            {% else %}
+              <hr>
+              <div class="d-flex justify-content-between fs-5 fw-bold">
+                <span>Total</span>
+                <span>€{{ total|floatformat:2 }}</span>
+              </div>
+            {% endif %}
+
+            <div class="d-grid mt-3">
+              <button class="btn btn-success btn-lg">
+                <i class="fa-solid fa-credit-card me-1"></i> Pay with Stripe
+              </button>
+            </div>
+          </form>
         </div>
       </div>
 

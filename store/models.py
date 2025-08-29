@@ -24,6 +24,14 @@ class Product(models.Model):
 
 class Order(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
+    full_name = models.CharField(max_length=100, blank=True)
+    address1 = models.CharField("Address line 1", max_length=200, blank=True)
+    address2 = models.CharField("Address line 2", max_length=200, blank=True)
+    city = models.CharField(max_length=100, blank=True)
+    county = models.CharField("County / State / Region", max_length=100, blank=True)
+    postcode = models.CharField("Postcode / ZIP", max_length=20, blank=True)
+    country = models.CharField(max_length=2, blank=True, help_text="ISO 2-letter code, e.g. IE, GB, US")
+    phone = models.CharField(max_length=30, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     is_paid = models.BooleanField(default=False)
     voucher = models.ForeignKey(Voucher,related_name='orders', null=True, blank=True, on_delete=models.SET_NULL)
