@@ -14,6 +14,10 @@ from .models import Product, Order, OrderItem, Wishlist, Review
 from django.conf import settings
 from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
+from vouchers.models import Voucher
+from vouchers.forms import VoucherApplyForm
+from decimal import Decimal
+
 import stripe
 stripe.api_key = settings.STRIPE_SECRET_KEY
 
@@ -90,8 +94,30 @@ def signup(request):
 @login_required
 def cart_view(request):
     order, _ = Order.objects.get_or_create(user=request.user, is_paid=False)
-    order = Order.objects.filter(pk=order.pk).prefetch_related('items__product').get()
-    return render(request, "store/cart.html", {"order": order})
+
+    total = Decimal(order.total_amount())
+    discount = Decimal("0")
+    new_total = total
+    voucher = None
+
+    vid = request.session.get("voucher_id")
+    if vid:
+        try:
+            voucher = Voucher.objects.get(id=vid, active=True)
+            discount = (total * Decimal(voucher.discount) / Decimal("100"))
+            new_total = total - discount
+        except Voucher.DoesNotExist:
+            pass
+
+    return render(request, "store/cart.html", {
+        "order": order,
+        "total": total,
+        "voucher": voucher,
+        "discount": discount,
+        "new_total": new_total,
+        "voucher_apply_form": VoucherApplyForm(),
+    })
+
 
 @login_required
 def add_to_cart(request, pk):
@@ -123,12 +149,31 @@ def remove_from_cart(request, pk):
     messages.info(request, "Item removed from cart.")
     return redirect("cart")
 
+
 @login_required
 def checkout(request):
     order = get_object_or_404(Order, user=request.user, is_paid=False)
+    total = Decimal(order.total_amount())
+    voucher = None
+    discount = Decimal("0.00")
+    new_total = total
+
+
+    vid = request.session.get("voucher_id")
+    if vid:
+        try:
+            voucher = Voucher.objects.get(id=vid, active=True)
+            discount = (total * Decimal(voucher.discount) / Decimal("100"))
+            new_total = total - discount
+        except Voucher.DoesNotExist:
+            pass
+
     return render(request, "store/checkout.html", {
         "order": order,
-        "STRIPE_PUBLIC_KEY": settings.STRIPE_PUBLIC_KEY,
+        "total": total,
+        "voucher": voucher,
+        "discount": discount,
+        "new_total": new_total,
     })
 
 @login_required
@@ -146,17 +191,33 @@ def create_checkout_session(request):
     for item in order.items.select_related('product'):
         line_items.append({
             "price_data": {
-                "currency": "eur",               
+                "currency": "eur",
                 "product_data": {"name": item.product.name},
                 "unit_amount": int(item.product.price * 100),
             },
             "quantity": item.quantity,
         })
 
-    success_url = request.build_absolute_uri(
-        reverse("payment_success")
-    ) + "?session_id={CHECKOUT_SESSION_ID}"
+    discounts_param = None
+    voucher_id = request.session.get("voucher_id")
+    if voucher_id:
+        try:
+            v = Voucher.objects.get(id=voucher_id, active=True)
+            coupon = stripe.Coupon.create(
+                percent_off=int(v.discount),
+                duration="once"
+            )
+            discounts_param = [{"coupon": coupon.id}]
 
+            try:
+                order.voucher = v
+                order.discount = int(v.discount)
+            except Exception:
+                pass
+        except Voucher.DoesNotExist:
+            pass
+
+    success_url = request.build_absolute_uri(reverse("payment_success")) + "?session_id={CHECKOUT_SESSION_ID}"
     cancel_url = request.build_absolute_uri(reverse("payment_cancel"))
 
     session = stripe.checkout.Session.create(
@@ -165,13 +226,15 @@ def create_checkout_session(request):
         line_items=line_items,
         success_url=success_url,
         cancel_url=cancel_url,
-        customer_email=request.user.email or None, 
+        customer_email=request.user.email or None,
+        **({"discounts": discounts_param} if discounts_param else {})
     )
 
     order.stripe_checkout_session_id = session.id
     order.save()
 
     return redirect(session.url, code=303)
+
 
 @login_required
 def payment_success(request):
