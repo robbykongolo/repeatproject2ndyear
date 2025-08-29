@@ -1,8 +1,5 @@
 
 # HealthFoods (Django)
-
-
-## Setup
 ```bash
 python -m venv env
 env\Scripts\activate
